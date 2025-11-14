@@ -9,9 +9,6 @@ public class Main {
         repl: do {
             System.out.print("$ ");
 
-            // String command = scanner.next();
-            // String arguments = scanner.nextLine();
-
             String input = scanner.nextLine();
             String[] parts = input.split(" ");
             String command = parts[0];
@@ -22,6 +19,9 @@ public class Main {
                 case "EXIT":
                     exitCode = Integer.parseInt(arguments[0].trim());
                     break repl;
+                case "ECHO":
+                    System.out.println(String.join(" ", arguments));
+                    break;
                 default:
                     System.out.println(command + ": command not found");
             }
