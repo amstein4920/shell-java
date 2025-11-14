@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -14,7 +15,7 @@ public class Main {
             String command = parts[0];
             String[] arguments = Arrays.copyOfRange(parts, 1, parts.length);
 
-            switch (command.toUpperCase()) {
+            commandSwitch: switch (command.toUpperCase()) {
                 case "EXIT":
                     exitCode = Integer.parseInt(arguments[0].trim());
                     break repl;
@@ -25,9 +26,18 @@ public class Main {
                     boolean isBuiltin = Builtin.isBuiltin(arguments[0].trim());
                     if (isBuiltin) {
                         System.out.println(arguments[0] + " is a shell builtin");
-                    } else {
-                        System.out.println(arguments[0] + ": not found");
+                        break commandSwitch;
                     }
+                    String[] pathDirs = System.getenv("PATH").split(File.pathSeparator);
+                    for (String dir : pathDirs) {
+                        File file = new File(dir, arguments[0]);
+                        if (file.canExecute()) {
+                            System.out.println(arguments[0] + " is " + file.getAbsolutePath());
+                            break commandSwitch;
+                        }
+                    }
+
+                    System.out.println(arguments[0] + ": not found");
                     break;
                 default:
                     System.out.println(command + ": command not found");
