@@ -44,8 +44,8 @@ public class Main {
                 System.out.println(currentDir);
                 return;
             case "CD":
-                if (arguments.length == 0) {
-                    currentDir = new File(System.getProperty("User.home"));
+                if ("~".equals(arguments[0])) {
+                    currentDir = new File(System.getenv("HOME"));
                     return;
                 }
                 File newDir = new File(arguments[0]);
