@@ -36,6 +36,9 @@ public class Main {
             case "ECHO":
                 System.out.println(String.join(" ", arguments));
                 return;
+            case "PWD":
+                System.out.println(System.getProperty("user.dir"));
+                return;
             case "TYPE":
                 boolean isBuiltin = Builtin.isBuiltin(arguments[0].trim());
                 if (isBuiltin) {

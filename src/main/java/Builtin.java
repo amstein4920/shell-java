@@ -1,7 +1,8 @@
     enum Builtin {
             EXIT,
             ECHO,
-            TYPE;
+            TYPE,
+            PWD;
 
 
             public static Boolean isBuiltin(String input) {
