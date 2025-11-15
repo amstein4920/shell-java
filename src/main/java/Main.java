@@ -6,9 +6,13 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
+
+    static File currentDir = new File(System.getProperty("user.dir"));
+
     public static void main(String[] args) throws Exception {
 
-        // This scanner is tied to System.in and used for the entire lifecycle of the application.
+        // This scanner is tied to System.in and used for the entire lifecycle of the
+        // application.
         // From this, I don't believe there is ever reason to close it.
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -37,7 +41,28 @@ public class Main {
                 System.out.println(String.join(" ", arguments));
                 return;
             case "PWD":
-                System.out.println(System.getProperty("user.dir"));
+                System.out.println(currentDir);
+                return;
+            case "CD":
+                if (arguments.length == 0) {
+                    currentDir = new File(System.getProperty("User.home"));
+                    return;
+                }
+                File newDir = new File(arguments[0]);
+                if (!newDir.isAbsolute()) {
+                    newDir = new File(currentDir, arguments[0]);
+                }
+                try {
+                    newDir = newDir.getCanonicalFile();
+                } catch (IOException e) {
+                    System.err.println("Unable to parse file path: " + e.getMessage());
+                }
+                if (!newDir.isDirectory()) {
+                    System.out.println("cd: " + arguments[0] + ": No such file or directory");
+                    return;
+                }
+
+                currentDir = newDir;
                 return;
             case "TYPE":
                 boolean isBuiltin = Builtin.isBuiltin(arguments[0].trim());
