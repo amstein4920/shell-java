@@ -2,8 +2,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
 
@@ -24,7 +28,7 @@ public class Main {
             System.out.print("$ ");
 
             String input = scanner.nextLine();
-            String[] parts = input.split(" ");
+            String[] parts = parse(input);
 
             processCommand(parts, pathDirs);
         } while (true);
@@ -137,5 +141,47 @@ public class Main {
             Thread.currentThread().interrupt();
             System.err.println("Thread was interrupted.");
         }
+    }
+
+    private static String[] parse(String inputString) {
+        Pattern pattern = Pattern.compile("'([^']*)'|([^\\s]+)");
+        Matcher matcher = pattern.matcher(inputString);
+
+        List<String> tokens = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+
+        int end = -1;
+
+        while (matcher.find()) {
+            String quoted = matcher.group(1);
+            String unquoted = matcher.group(2);
+
+            boolean adjacentToEnd = (matcher.start() == end);
+            String subString = (quoted != null ? quoted : unquoted);
+
+            if (unquoted != null) {
+                subString = subString.replace("''", "");
+            }
+
+            if (subString.isEmpty()) {
+                // Do nothing
+            } else if (adjacentToEnd) {
+                current.append(subString);
+            } else {
+                if (current.length() > 0) {
+                    tokens.add(current.toString());
+                }
+                current.setLength(0);
+                current.append(subString);
+            }
+
+            end = matcher.end();
+        }
+
+        if (current.length() > 0) {
+            tokens.add(current.toString());
+        }
+
+        return tokens.toArray(new String[0]);
     }
 }
