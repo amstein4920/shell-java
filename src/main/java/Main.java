@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+// import java.util.regex.Matcher;
+// import java.util.regex.Pattern;
 
 public class Main {
 
@@ -144,47 +144,67 @@ public class Main {
     }
 
     private static String[] parse(String inputString) {
-        Pattern pattern = Pattern.compile("'([^']*)'|\"([^\"]*)\"|([^\\s]+)");
+        List<String> result = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        boolean singleQuoted = false;
+        boolean doubleQuoted = false;
+        boolean escaped = false;
 
-        Matcher matcher = pattern.matcher(inputString);
-
-        List<String> tokens = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-
-        int end = -1;
-
-        while (matcher.find()) {
-            String singleQuoted = matcher.group(1);
-            String doubleQuoted = matcher.group(2);
-            String unquoted = matcher.group(3);
-
-            boolean adjacentToEnd = (matcher.start() == end);
-            String subString = (singleQuoted != null ? singleQuoted
-                    : doubleQuoted != null ? doubleQuoted : unquoted);
-
-            if (unquoted != null) {
-                subString = subString.replace("''", "").replace("\"\"", "");
+        for (char c : inputString.toCharArray()) {
+            switch (c) {
+                case '\\':
+                    if (escaped || singleQuoted) {
+                        builder.append(c);
+                        escaped = false;
+                    } else {
+                        escaped = true;
+                    }
+                    break;
+                case ' ':
+                    if (escaped && doubleQuoted) {
+                        builder.append('\\');
+                    }
+                    if (singleQuoted || doubleQuoted || escaped) {
+                        builder.append(c);
+                    } else if (builder.length() > 0) {
+                        result.add(builder.toString());
+                        builder.setLength(0);
+                    }
+                    escaped = false;
+                    break;
+                case '\'':
+                    if (escaped && doubleQuoted) {
+                        builder.append('\\');
+                    }
+                    if (doubleQuoted || escaped) {
+                        builder.append(c);
+                    } else {
+                        singleQuoted = !singleQuoted;
+                    }
+                    escaped = false;
+                    break;
+                case '"':
+                    if (singleQuoted || escaped) {
+                        builder.append(c);
+                    } else {
+                        doubleQuoted = !doubleQuoted;
+                    }
+                    escaped = false;
+                    break;
+                default:
+                    if (doubleQuoted && escaped) {
+                        builder.append('\\');
+                    }
+                    builder.append(c);
+                    escaped = false;
             }
-
-            if (subString == null || subString.isEmpty()) {
-                // Do nothing
-            } else if (adjacentToEnd) {
-                current.append(subString);
-            } else {
-                if (current.length() > 0) {
-                    tokens.add(current.toString());
-                }
-                current.setLength(0);
-                current.append(subString);
-            }
-
-            end = matcher.end();
         }
 
-        if (current.length() > 0) {
-            tokens.add(current.toString());
+        if (builder.length() > 0) {
+            result.add(builder.toString());
         }
 
-        return tokens.toArray(new String[0]);
+
+        return result.toArray(new String[0]);
     }
 }
