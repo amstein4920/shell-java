@@ -144,7 +144,8 @@ public class Main {
     }
 
     private static String[] parse(String inputString) {
-        Pattern pattern = Pattern.compile("'([^']*)'|([^\\s]+)");
+        Pattern pattern = Pattern.compile("'([^']*)'|\"([^\"]*)\"|([^\\s]+)");
+
         Matcher matcher = pattern.matcher(inputString);
 
         List<String> tokens = new ArrayList<>();
@@ -153,17 +154,19 @@ public class Main {
         int end = -1;
 
         while (matcher.find()) {
-            String quoted = matcher.group(1);
-            String unquoted = matcher.group(2);
+            String singleQuoted = matcher.group(1);
+            String doubleQuoted = matcher.group(2);
+            String unquoted = matcher.group(3);
 
             boolean adjacentToEnd = (matcher.start() == end);
-            String subString = (quoted != null ? quoted : unquoted);
+            String subString = (singleQuoted != null ? singleQuoted
+                    : doubleQuoted != null ? doubleQuoted : unquoted);
 
             if (unquoted != null) {
-                subString = subString.replace("''", "");
+                subString = subString.replace("''", "").replace("\"\"", "");
             }
 
-            if (subString.isEmpty()) {
+            if (subString == null || subString.isEmpty()) {
                 // Do nothing
             } else if (adjacentToEnd) {
                 current.append(subString);
