@@ -21,14 +21,25 @@ public class Main {
             PrintStream console = System.out;
 
             for (int i = 0; i < arguments.length; i++) {
-                if (Arrays.asList(new String[] { ">", "1>" }).contains(arguments[i]) && i < arguments.length - 1) {
-                    PrintStream newPS;
-                    try {
-                        newPS = new PrintStream(arguments[i + 1]);
-                        System.setOut(newPS);
-                        arguments = Arrays.copyOfRange(arguments, 0, i);
-                    } catch (FileNotFoundException e) {
-                        System.err.println("Output File Couldn't Be Created: " + e.getMessage());
+                if (i < arguments.length - 1) {
+                    if (Arrays.asList(new String[] { ">", "1>" }).contains(arguments[i])) {
+                        PrintStream newPS;
+                        try {
+                            newPS = new PrintStream(arguments[i + 1]);
+                            System.setOut(newPS);
+                            arguments = Arrays.copyOfRange(arguments, 0, i);
+                        } catch (FileNotFoundException e) {
+                            System.err.println("Output File Couldn't Be Created: " + e.getMessage());
+                        }
+                    } else if (Arrays.asList(new String[] { "2>" }).contains(arguments[i])) {
+                        PrintStream newPS;
+                        try {
+                            newPS = new PrintStream(arguments[i + 1]);
+                            System.setErr(newPS);
+                            arguments = Arrays.copyOfRange(arguments, 0, i);
+                        } catch (FileNotFoundException e) {
+                            System.err.println("Error File Couldn't Be Created: " + e.getMessage());
+                        }
                     }
                 }
             }
