@@ -1,18 +1,32 @@
 import java.io.PrintStream;
-import java.util.Scanner;
+
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.DefaultParser;
+import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.StringsCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        Terminal terminal = TerminalBuilder.builder().system(true).build();
 
-        // This scanner is tied to System.in and used for the entire lifecycle of the
-        // application.
-        // From this, I don't believe there is ever reason to close it.
-        @SuppressWarnings("resource")
-        Scanner scanner = new Scanner(System.in);
+        // I want to turn off escaping so that the custom behaivor in ShellParser.java
+        // is maintained.
+        DefaultParser jlineParser = new DefaultParser();
+
+        jlineParser.setEscapeChars(null);
+
+        Completer completer = new StringsCompleter("exit", "echo", "pwd", "cd", "type");
+
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .parser(jlineParser)
+                .completer(completer)
+                .build();
         do {
-            System.out.print("$ ");
-
-            String input = scanner.nextLine();
+            String input = reader.readLine("$ ");
 
             Parser parser = new Parser();
             String[] arguments = parser.parse(input); // [command, args?]
