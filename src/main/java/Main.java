@@ -3,8 +3,6 @@ import java.io.PrintStream;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.DefaultParser;
-import org.jline.reader.Completer;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -18,12 +16,10 @@ public class Main {
 
         jlineParser.setEscapeChars(null);
 
-        Completer completer = new StringsCompleter("exit", "echo", "pwd", "cd", "type");
-
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(jlineParser)
-                .completer(completer)
+                .completer(Completers.getCompleter())
                 .build();
         do {
             String input = reader.readLine("$ ");
