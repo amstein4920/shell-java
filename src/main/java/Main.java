@@ -73,6 +73,24 @@ public class Main {
                 return true;
             }
 
+            // Longest Common Prefix (LCP) completion for PATH executables (exclude
+            // builtins)
+            List<String> pathExecValues = matches.stream()
+                    .map(Candidate::value)
+                    .distinct()
+                    .filter(v -> Commands.getPath(v) != null)
+                    .collect(Collectors.toList());
+
+            if (!pathExecValues.isEmpty()) {
+                String lcp = longestCommonPrefix(pathExecValues);
+                if (lcp.length() > parsedLine.word().length()) {
+                    buffer.backspace(parsedLine.word().length());
+                    buffer.write(lcp);
+                    state.lastWasTab = false;
+                    return true;
+                }
+            }
+
             boolean sameBuffer = currentBuffer.equals(state.lastBuffer);
 
             if (!state.lastWasTab || !sameBuffer) {
@@ -123,6 +141,21 @@ public class Main {
             }
             System.setOut(console);
         } while (true);
+    }
+
+    static String longestCommonPrefix(List<String> strs) {
+        if (strs == null || strs.isEmpty())
+            return "";
+        String prefix = strs.get(0);
+        for (int i = 1; i < strs.size(); i++) {
+            String s = strs.get(i);
+            while (!s.startsWith(prefix)) {
+                if (prefix.length() == 0)
+                    return "";
+                prefix = prefix.substring(0, prefix.length() - 1);
+            }
+        }
+        return prefix;
     }
 }
 
